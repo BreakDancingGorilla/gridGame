@@ -25,3 +25,40 @@ class grid {
 
     }
 }
+
+
+updateGrid() {
+  const playerCord = grid.getPlayerCord();
+  const enemyCord = grid.getEnemyCord();
+
+  const nodes = buildNodes(grid.gridArray);
+  const startNode = nodes[enemyCord[1]][enemyCord[0]];
+  const endNode = nodes[playerCord[1]][playerCord[0]];
+
+  let ranNode = nodes[randomCord[1]][randomCord[0]];
+  let path = aStar(startNode, endNode, nodes);
+  let ranPath = aStar(startNode, ranNode, nodes);
+
+  if (ranPath.length <= 2) {
+    randomCord = grid.getRandomCord();
+    ranNode = nodes[randomCord[1]][randomCord[0]];
+    ranPath = aStar(startNode, ranNode, nodes);
+  }
+
+  if (hasLineOfSight(grid.gridArray, startNode, endNode) && path.length > 1) {
+    grid.enemyColor = "red";
+    grid.gridArray[enemyCord[1]][enemyCord[0]] = 0;
+    grid.gridArray[path[1][1]][path[1][0]] = 'o';
+    chase = 4;
+  } else {
+    if (chase > 0 && path.length > 1) {
+      chase--;
+      grid.gridArray[enemyCord[1]][enemyCord[0]] = 0;
+      grid.gridArray[path[1][1]][path[1][0]] = 'o';
+    } else if (ranPath.length > 1) {
+      grid.enemyColor = "green";
+      grid.gridArray[enemyCord[1]][enemyCord[0]] = 0;
+      grid.gridArray[ranPath[1][1]][ranPath[1][0]] = 'o';
+    }
+  }
+}

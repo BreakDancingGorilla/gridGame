@@ -8,6 +8,11 @@ canvas.width = document.documentElement.clientWidth;
 canvas.height = document.documentElement.clientHeight;
 
 
+function ranNum(min, max) {
+    seed = Math.random();
+    seed = Math.floor(seed * (max - (min - 1))) + min;
+    return seed;
+  }
 
 
 var keyPress = {
@@ -62,139 +67,158 @@ var keyPress = {
   };
 
 var grid = {
-   numOfGridCells: 0,
-   numInRow:0,
-   numInColumn: 0,
-   gridArray: [
-      [1,1,1,1,1,1,1,1,1,1,1],
-      [1,0,0,0,1,1,1,1,1,1,1],
-      [1,0,'x',0,0,0,0,0,0,0,1],
-      [1,0,0,0,1,1,1,1,1,0,1],
-      [1,1,0,1,1,1,1,1,1,0,1],
-      [1,1,0,1,1,1,1,1,1,0,1],
-      [1,1,0,0,0,0,0,0,0,0,1],
-      [1,1,1,1,0,1,1,0,1,1,1],
-      [1,1,1,1,0,1,1,0,1,1,1],
-      [1,1,1,0,0,0,1,0,1,1,1],
-      [1,1,1,0,'o',0,1,0,1,1,1],
-      [1,1,1,0,0,0,0,0,1,1,1],
-      [1,1,1,1,1,1,1,1,1,1,1],
-   ],
-   cellSize: 50,
-   wallColor: "black",
+  numOfGridCells: 0,
+  numInRow: 0,
+  numInColumn: 0,
+  gridArray: [
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 0, "x", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1],
+    [1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1],
+    [1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1],
+    [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1],
+    [1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1],
+    [1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1],
+    [1, 1, 1, 0, "o", 0, 1, 0, 1, 1, 1, 0, 1],
+    [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+  ],
+  cellSize: 50,
+  wallColor: "black",
+  enemyColor: "green",
 
-   getPlayerCord: function(){
-      this.calGrid();
-      let r = 0;
-      let c = 0;
-      for (let i = 0; i < this.numOfGridCells; i++) {
-               console.log(r + " " + c);
-         if (this.gridArray[c][r] == 'x') {
-            return [r,c];
-         }
-         r++;
-         if (r > this.numInRow) {
-            r = 0;
-            c++;
-         }
+  getPlayerCord: function () {
+    this.calGrid();
+    let r = 0;
+    let c = 0;
+    for (let i = 0; i < this.numOfGridCells; i++) {
+      console.log(r + " " + c);
+      if (this.gridArray[c][r] == "x") {
+        return [r, c];
       }
+      r++;
+      if (r > this.numInRow - 1) {
+        r = 0;
+        c++;
+      }
+    }
+  },
 
-   },
-   getEnemyCord: function(){
-      this.calGrid();
-      let r = 0;
-      let c = 0;
-      for (let i = 0; i < this.numOfGridCells; i++) {
-         if (this.gridArray[c][r] == 'o') {
-            return [r,c];
-         }
-         r++;
-         if (r > this.numInRow) {
-            r = 0;
-            c++;
-         }
+  getRandomCord: function () {
+    this.calGrid();
+    let r = ranNum(0, this.numInRow - 1);
+    let c = ranNum(0, this.numInColumn - 1);
+    let lock = true;
+    while (lock) {
+      
+      if (this.gridArray[r][c] === 0) {
+        lock = false;
+        return [r, c];
+      } else {
+     r = ranNum(0, this.numInRow - 1);
+     c = ranNum(0, this.numInColumn - 1);
       }
-   },
+    }
+    
+  },
 
-   calGrid: function() {
-      this.numInRow = this.gridArray[0].length;
-      this.numInColumn = this.gridArray.length;
-      this.numOfGridCells = this.numInRow * this.numInColumn;
-   },
+  getEnemyCord: function () {
+    this.calGrid();
+    let r = 0;
+    let c = 0;
+    for (let i = 0; i < this.numOfGridCells; i++) {
+      if (this.gridArray[c][r] == "o") {
+        return [r, c];
+      }
+      r++;
+      if (r > this.numInRow - 1) {
+        r = 0;
+        c++;
+      }
+    }
+  },
 
-   movePlayer: function() {
-    playerCord = this.getPlayerCord();
-    console.log(playerCord);
-    let timer = 0;
-    lock = false;
-      if (keyPress.w && timer <= 0) {
-         if (!this.gridArray[playerCord[1] - 1][playerCord[0]] == 1) {
-            this.gridArray[playerCord[1]][playerCord[0]] = 0;
-            this.gridArray[playerCord[1] - 1][playerCord[0]] = 'x';
-            lock = true;
-         }
-      }
-      if (keyPress.a &&!lock && timer <= 0) {
-         if (!this.gridArray[playerCord[1]][playerCord[0] - 1] == 1) {
-            this.gridArray[playerCord[1]][playerCord[0]] = 0;
-            this.gridArray[playerCord[1]][playerCord[0] - 1] = 'x';
-             lock = true;
-         }
-      }
-      if (keyPress.s &&!lock && timer <= 0) {
-         if (!this.gridArray[playerCord[1] + 1][playerCord[0]] == 1) {
-            this.gridArray[playerCord[1]][playerCord[0]] = 0;
-            this.gridArray[playerCord[1] + 1][playerCord[0]] = 'x';
-             lock = true;
-         }
-      }
-      if (keyPress.d &&!lock && timer <= 0) {
-         if (!this.gridArray[playerCord[1]][playerCord[0] + 1] == 1) {
-            this.gridArray[playerCord[1]][playerCord[0]] = 0;
-            this.gridArray[playerCord[1]][playerCord[0] + 1] = 'x';
-             lock = true;
-         }
-      }
-      if (timer <= 0) {
-        timer = 30;
-      }
-      else {
-        timer++;
-      }
-      console.log(this.gridArray);
-   },
+  calGrid: function () {
+    this.numInRow = this.gridArray[0].length;
+    this.numInColumn = this.gridArray.length;
+    this.numOfGridCells = this.numInRow * this.numInColumn;
+  },
 
-   renderGrid: function() {
-      ctx.clearRect(0,0,canvas.width,canvas.height)
-      this.calGrid();
-      let r = 0;
-      let c = 0;
-      for (let i = 0; i < this.numOfGridCells; i++) {
-         if (this.gridArray[c][r] == 1) {
-            ctx.fillStyle = this.wallColor;
-            ctx.fillRect(this.cellSize * r, this.cellSize * c,this.cellSize,this.cellSize);
-         }
-         if (this.gridArray[c][r] == 'x') {
-            ctx.beginPath();
-            ctx.arc((this.cellSize * r) + this.cellSize/2, (this.cellSize * c) + this.cellSize/2, this.cellSize/2, 0, Math.PI * 2); 
-            ctx.fill();
-         }
-         if (this.gridArray[c][r] == 'o') {
-            let oldColor = ctx.fillStyle;
-            ctx.fillStyle = 'red';
-            ctx.beginPath();
-            ctx.arc((this.cellSize * r) + this.cellSize/2, (this.cellSize * c) + this.cellSize/2, this.cellSize/2, 0, Math.PI * 2); 
-            ctx.fill();
-            ctx.fillStyle = oldColor;
-         }
-         r++;
-         if (r >= this.numInRow) {
-            r = 0;
-            c++;
-         }
+  movePlayer: function () {
+  const playerCord = this.getPlayerCord();
+  let moved = false;
+
+  if (keyPress.w && this.gridArray[playerCord[1] - 1][playerCord[0]] !== 1) {
+    this.gridArray[playerCord[1]][playerCord[0]] = 0;
+    this.gridArray[playerCord[1] - 1][playerCord[0]] = "x";
+    moved = true;
+  }
+  if (keyPress.a && !moved && this.gridArray[playerCord[1]][playerCord[0] - 1] !== 1) {
+    this.gridArray[playerCord[1]][playerCord[0]] = 0;
+    this.gridArray[playerCord[1]][playerCord[0] - 1] = "x";
+    moved = true;
+  }
+  if (keyPress.s && !moved && this.gridArray[playerCord[1] + 1][playerCord[0]] !== 1) {
+    this.gridArray[playerCord[1]][playerCord[0]] = 0;
+    this.gridArray[playerCord[1] + 1][playerCord[0]] = "x";
+    moved = true;
+  }
+  if (keyPress.d && !moved && this.gridArray[playerCord[1]][playerCord[0] + 1] !== 1) {
+    this.gridArray[playerCord[1]][playerCord[0]] = 0;
+    this.gridArray[playerCord[1]][playerCord[0] + 1] = "x";
+    moved = true;
+  }
+},
+  renderGrid: function () {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    this.calGrid();
+    let r = 0;
+    let c = 0;
+    for (let i = 0; i < this.numOfGridCells; i++) {
+      if (this.gridArray[c][r] == 1) {
+        ctx.fillStyle = this.wallColor;
+        ctx.fillRect(
+          this.cellSize * r,
+          this.cellSize * c,
+          this.cellSize,
+          this.cellSize
+        );
       }
-   }
-}
+      if (this.gridArray[c][r] == "x") {
+        ctx.beginPath();
+        ctx.arc(
+          this.cellSize * r + this.cellSize / 2,
+          this.cellSize * c + this.cellSize / 2,
+          this.cellSize / 2,
+          0,
+          Math.PI * 2
+        );
+        ctx.fill();
+      }
+      if (this.gridArray[c][r] == "o") {
+        let oldColor = ctx.fillStyle;
+        ctx.fillStyle = this.enemyColor;
+        ctx.beginPath();
+        ctx.arc(
+          this.cellSize * r + this.cellSize / 2,
+          this.cellSize * c + this.cellSize / 2,
+          this.cellSize / 2,
+          0,
+          Math.PI * 2
+        );
+        ctx.fill();
+        ctx.fillStyle = oldColor;
+      }
+      r++;
+      if (r >= this.numInRow) {
+        r = 0;
+        c++;
+      }
+    }
+  },
+};
 
 
 
@@ -293,27 +317,79 @@ var grid = {
     console.log(openSet);
     return []; // No path
   }
+  let chase = 0;
+     let randomCord = grid.getRandomCord();
 
-  function updateGrid() {
-   let playerCord = grid.getPlayerCord();
-   let enemyCord = grid.getEnemyCord();
-     let nodes = buildNodes(grid.gridArray);
-   let startNode = nodes[enemyCord[1]][enemyCord[0]];
-  let endNode = nodes[playerCord[1]][playerCord[0]];
+function updateGrid() {
+  const playerCord = grid.getPlayerCord();
+  const enemyCord = grid.getEnemyCord();
+
+  const nodes = buildNodes(grid.gridArray);
+  const startNode = nodes[enemyCord[1]][enemyCord[0]];
+  const endNode = nodes[playerCord[1]][playerCord[0]];
+
+  let ranNode = nodes[randomCord[1]][randomCord[0]];
   let path = aStar(startNode, endNode, nodes);
-  grid.gridArray[enemyCord[1]][enemyCord[0]] = 0;
-   grid.gridArray[path[1][1]][path[1][0]] = 'o';
+  let ranPath = aStar(startNode, ranNode, nodes);
 
-  console.log(path);
+  if (ranPath.length <= 2) {
+    randomCord = grid.getRandomCord();
+    ranNode = nodes[randomCord[1]][randomCord[0]];
+    ranPath = aStar(startNode, ranNode, nodes);
   }
 
+  if (hasLineOfSight(grid.gridArray, startNode, endNode) && path.length > 1) {
+    grid.enemyColor = "red";
+    grid.gridArray[enemyCord[1]][enemyCord[0]] = 0;
+    grid.gridArray[path[1][1]][path[1][0]] = 'o';
+    chase = 3;
+  } else {
+    if (chase > 0 && path.length > 1) {
+      chase--;
+      grid.gridArray[enemyCord[1]][enemyCord[0]] = 0;
+      grid.gridArray[path[1][1]][path[1][0]] = 'o';
+    } else if (ranPath.length > 1) {
+      grid.enemyColor = "green";
+      grid.gridArray[enemyCord[1]][enemyCord[0]] = 0;
+      grid.gridArray[ranPath[1][1]][ranPath[1][0]] = 'o';
+    }
+  }
+}
+
+function hasLineOfSight(grid, start, end) {
+    const WALL = 1; // change to your wall cell value
+
+    let x0 = start.x;
+    let y0 = start.y;
+    let x1 = end.x;
+    let y1 = end.y;
+
+    const dx = Math.abs(x1 - x0);
+    const dy = Math.abs(y1 - y0);
+    const sx = (x0 < x1) ? 1 : -1;
+    const sy = (y0 < y1) ? 1 : -1;
+    let err = dx - dy;
+
+    while (true) {
+        if (grid[y0][x0] === WALL) return false; // blocked by wall
+        if (x0 === x1 && y0 === y1) return true; // reached target
+
+        const e2 = err * 2;
+        if (e2 > -dy) {
+            err -= dy;
+            x0 += sx;
+        }
+        if (e2 < dx) {
+            err += dx;
+            y0 += sy;
+        }
+    }
+}
 
   console.log(grid.getEnemyCord());
 
-  updateGrid();
-
 grid.renderGrid();
-
+console.log(grid.getRandomCord());
  main = () => {
     window.requestAnimationFrame(main);
     
